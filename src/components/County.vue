@@ -5,9 +5,8 @@
     style="stroke:#000000;"
     class="county"
     v-bind:class="countyClass"
-    @click="toggleClass"
   >
-    <title>{{county.titke}} - {{data.deaths}}</title>
+    <title>{{county.title}} - {{infections}} : {{deaths}}</title>
   </path>
 </template>
 
@@ -18,33 +17,23 @@ const keyRegex = new RegExp(/\s|,/gi);
 export default {
   name: 'County',
   props: {
-    county: Object,
-  },
-  mounted: async function () {
-    await this.$store.dispatch('init', {
-      countyKey: this.countyKey
-    });
-  },
-  data: function (){
-    return {
-      countyClass: ""
-    };
+    county: Object
   },
   computed: {
-    countyKey: function () {
+    ID: function () {
       return this.county.title.replace(keyRegex, '').toLowerCase();
     },
-    data: function () {
-      return this.$store.state.data[this.countyKey] || {
-        deaths: 0
-      };
-    }
+    deaths: function () {
+      return this.$store.getters.getDeathsById(this.ID);
+    },
+    infections: function () {
+      return this.$store.getters.getInfectionsById(this.ID);
+    },
+    countyClass: function () {
+      return (this.deaths)? "deaths" : (this.infections) ? "infected" : "";
+    },
   },
-  methods: {
-    toggleClass: function() {
-      this.countyClass = "test";
-    }
-  } 
+  methods: {} 
 }
 </script>
 
@@ -54,7 +43,10 @@ export default {
  .county {
    fill: #fff;
  }
- .county.test {
-   fill: #000;
+ .county.infected {
+   fill: yellow;
+ }
+ .county.deaths {
+   fill: red;
  }
 </style>

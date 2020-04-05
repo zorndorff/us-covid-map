@@ -1,0 +1,17 @@
+[
+  {
+    "date": "2020-01-01",
+    "infections": ["North Slope, AK", "North Slope, AK"],
+    "deaths": []
+  },
+  {
+    "date": "2020-01-21",
+    "infections": ["Hamilton, KS"],
+    "deaths": ["North Slope, AK", "North Slope, AK"]
+  },
+  {
+    "date": "2020-02-01",
+    "infections": [],
+    "deaths": ["Labette, KS"]
+  }
+]

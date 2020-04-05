@@ -8,7 +8,8 @@
     xmlns="http://www.w3.org/2000/svg"
     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    width="989.97998"
+    width="100%"
+    viewBox="0 0 989 627"
     height="627.07001"
     version="1.0"
     id="svg2"
@@ -46,7 +47,10 @@
     <g
       id="counties"
       transform="translate(0,0.10698)"
-      style="fill:#d0d0d0;stroke:#ffffff;stroke-width:0.17828999">
+      style="fill:#d0d0d0;stroke:#ffffff;stroke-width:0.17828999"
+      v-if="dataLoaded"
+    >
+
       <County v-for="county in counties" :key="county.title" v-bind:county="county"></County>
     </g> 
     </svg>
@@ -54,27 +58,31 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import County from '@/components/County.vue';
 import Counties from '@/assets/usa_county_list.json';
 
+const keyRegex = new RegExp(/\s|,/gi);
+
 export default {
   name: 'Map',
-  computed: {
-    ...mapState({
-      data: state => state.data,
-    }),
-  },
   data: () => ({
-    counties: Counties
+    counties: Counties,
+    dataLoaded: false
   }),
-  mounted () {
-  },
-  methods: {
-    toggleClass: async function() {
-      this.countyClass = (this.countyClass === "test")? "" : "test";
+  async mounted () {
+
+    const countyData = {};
+    for (const county of Counties){
+      const id = county.title.replace(keyRegex, '').toLowerCase();
+      countyData[id] = {
+        deaths: false,
+        infections: false
+      }
     }
+    await this.$store.dispatch('init', countyData);
+    this.dataLoaded = true;
   },
+  methods: {},
   props: {},
   components: {
     County
