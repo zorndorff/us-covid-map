@@ -1,53 +1,55 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import Counties from '@/assets/usa_county_list.json';
+
+const countyData = {};
+const keyRegex = new RegExp(/\s|,/gi);
+
+for (const county of Counties){
+  const id = county.title.replace(keyRegex, '').toLowerCase();
+  countyData[id] = false;
+}
+
+const infections = {};
+const deaths = {};
+
+Object.assign(infections, countyData);
+Object.assign(deaths, countyData);
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    data: {},
-    infected: {},
-    deaths: {}
+    infections,
+    deaths
   },
   modules: {
   },
   mutations: {
-    increment (state, {id, newTotal}) {
-      state.data[id].deaths = newTotal;
-    },
     has_infected (state, id) {
-      state.data[id].infections = true;
+      state.infections[id] = true;
     },
     has_deaths (state, id) {
-      state.data[id].deaths = true;
-    },
-    init (state, countyData) {
-      state.data = countyData;
+      state.deaths[id] = true;
     }
   },
   actions: {
     increment (context, payload) {
       context.commit('increment', payload);
     },
-    async set_deaths ({commit}, {id}) {
-      commit('has_deaths', id);
+    async set_deaths ({commit, state}, {id}) {
+      if(!state.deaths[id]){
+        commit('has_deaths', id);
+      }
     },
-    async set_infected ({commit}, {id}) {
-      commit('has_infected', id);
+    async set_infected ({commit, state}, {id}) {
+      if(!state.infections[id]){
+        commit('has_infected', id);
+      }
     },
     async init (context, countyData){
       context.commit('init', countyData);
     }
   },
-  getters: {
-    getDataById: ({ data }) => (id) => {
-      return data[id];
-    },
-    getDeathsById: ({ data }) => (id) => {
-      return data[id].deaths;
-    },
-    getInfectionsById: ({ data }) => (id) => {
-      return data[id].infections;
-    }
-  }
+  getters: {}
 })

@@ -6,7 +6,7 @@
     class="county"
     v-bind:class="countyClass"
   >
-    <title>{{county.title}} - {{infections}} : {{deaths}}</title>
+    <title>{{county.title}} {{deaths}} {{infections}}</title>
   </path>
 </template>
 
@@ -23,14 +23,22 @@ export default {
     ID: function () {
       return this.county.title.replace(keyRegex, '').toLowerCase();
     },
-    deaths: function () {
-      return this.$store.getters.getDeathsById(this.ID);
-    },
     infections: function () {
-      return this.$store.getters.getInfectionsById(this.ID);
+      return this.$store.state.infections[this.ID];
     },
+    deaths: function () {
+      return this.$store.state.deaths[this.ID];
+    }, 
     countyClass: function () {
-      return (this.deaths)? "deaths" : (this.infections) ? "infected" : "";
+      const classes = [];
+      
+      if (this.infections === true) {
+        classes.push("infected");
+      }
+      if (this.deaths === true) {
+        classes.push("deaths");
+      }
+      return classes;
     },
   },
   methods: {} 

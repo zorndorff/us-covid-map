@@ -4,26 +4,31 @@ import moment from 'moment';
 class DataWorker{
   constructor() {
     this.state = "LOADING";
-    this.date = new moment("2020-01-01");
+    this.date = new moment("2020-01-15");
+    this.today = new moment().format("YYYY-MM-DD");
+    this.nextDate(); 
     this.setState("LOADING");
     this.loadData();
 
     this.interval = setInterval(() => {
-      this.doPlayback();
-    }, 500);
+      if(this.state === "PLAYING") {
+        this.doPlayback();
+      }
+    }, 700);
   }
   doPlayback(){
-    const data = this.getDataByDate(this.date.format("YYYY-MM-DD")) || {
-      infections:[],
-      deaths: []
-    };
+    const dateKey = this.date.format("YYYY-MM-DD");
+    const data = this.getDataByDate(dateKey);
 
     self.postMessage({
-      state: "UPDATE", 
+      command: "UPDATE_DATA",  
       data
     });
-
-    this.date.add(1, 'days');
+    if(this.today === dateKey){
+      this.pause();
+    } else {
+      this.nextDate();
+    }
   }
   async loadData() {
     try{
@@ -38,6 +43,13 @@ class DataWorker{
     this.state = state;
     self.postMessage({state: this.state});
   }
+  nextDate(){
+    this.date.add(1, 'days');
+    self.postMessage({
+      command: "UPDATE_DATE",  
+      date: this.date.format("YYYY-MM-DD")
+    });
+  }
   play(){
     this.setState("PLAYING");
   }
@@ -45,7 +57,7 @@ class DataWorker{
     this.setState("PAUSED");
   }
   getDataByDate(date) {
-    return this.data.find((entry) => entry.date === date);
+    return this.data.filter((entry) => entry.date === date);
   }
   handleMessage(data){
     switch(data.command){
@@ -59,7 +71,7 @@ class DataWorker{
       break;
     }
   }
-};
+}
 
 const dw = new DataWorker();
  

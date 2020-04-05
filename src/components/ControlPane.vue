@@ -1,38 +1,28 @@
 <template>
   <div class = "controls">
-    <input type="text" v-model="county" />
-    <button @click="setDeaths">DEATHS</button>
-    <button @click="setInfections">Infections</button>
     <button @click="play">Play</button>
+    <button @click="pause">Pause</button>
+    <span>{{currentDate}}</span>
     <span>{{messages}}</span>
   </div>
 </template>
 
 <script>
 import DataWorker from "worker-loader!../lib/data.worker.js";
-// eslint-disable-next-line no-undef
-const keyRegex = new RegExp(/\s|,/gi);
-
+    
 export default {
   name: "ControlPane",
   data: () => ({
     county: "none",
-    messages: []
+    messages: [],
+    currentDate: "",
   }),
-  mounted: function () {
+  created: function () {
     this.dataWorker = new DataWorker();
-    this.dataWorker.addEventListener("message", ({ data }) => {
-      if(data.state === "UPDATE"){
-        const {infections, deaths} = data.data;
 
-        infections.forEach((title) => {
-          const id = title.replace(keyRegex, '').toLowerCase();
-          this.setInfections(id);
-        });
-        deaths.forEach((title) => {
-          const id = title.replace(keyRegex, '').toLowerCase();
-          this.setDeaths(id);
-        });
+    this.dataWorker.addEventListener("message", ({ data }) => {
+      if(this[data.command]){
+        this[data.command](data);
       }
     });
   },
@@ -40,6 +30,22 @@ export default {
     this.dataWorker.terminate();
   },
   methods: {
+    UPDATE_DATA: function({data}) {
+      data.forEach(countyData => {
+        const {cases, deaths, countyName} = countyData;
+        console.log(`${countyName} ${cases} ${deaths}`);
+
+        if(parseInt(cases) !== 0){
+          this.setInfections(countyName);
+        }
+        if (parseInt(deaths) !== 0) {
+          this.setDeaths(countyName);
+        }
+      });
+    },
+    UPDATE_DATE: function({date}) {
+      this.currentDate = date;
+    },
     setDeaths: function(id) {
       this.$store.dispatch('set_deaths', {id});
     },
@@ -49,6 +55,11 @@ export default {
     play: function() {
       this.dataWorker.postMessage({
         command: "PLAY"
+      });
+    },
+    pause: function() {
+      this.dataWorker.postMessage({
+        command: "PAUSE"
       });
     }
 
