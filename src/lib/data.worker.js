@@ -32,7 +32,7 @@ class DataWorker{
   }
   async loadData() {
     try{
-      const {data} = await axios.get('./spread_data.json');
+      const {data} = await axios.get('spread_data.json');
       this.data = data;
       this.setState("LOADED");
     } catch (ex) {
