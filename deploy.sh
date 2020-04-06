@@ -4,7 +4,8 @@ BUILD_TIME=`date`
 
 echo Syncing deploy repo changes
 npm run build
-cp dist docs
+rm -rf docs
+mv dist docs
 
 git add -A
 git commit -am "Content Update $BUILD_TIME"
