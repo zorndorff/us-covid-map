@@ -33,8 +33,7 @@ export default {
     UPDATE_DATA: function({data}) {
       data.forEach(countyData => {
         const {cases, deaths, countyName} = countyData;
-        console.log(`${countyName} ${cases} ${deaths}`);
-
+        
         if(parseInt(cases) !== 0){
           this.setInfections(countyName);
         }
