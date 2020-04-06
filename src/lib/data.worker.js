@@ -32,7 +32,7 @@ class DataWorker{
   }
   async loadData() {
     try{
-      const ax =  axios.create({ baseURL: `${window.location.origin}${window.location.pathname}` });
+      const ax =  axios.create({ baseURL: `${self.location.origin}${self.location.pathname}` });
       const {data} = await ax.get('spread_data.json');
       this.data = data;
       this.setState("LOADED");
